@@ -6,7 +6,7 @@ module Hello
 sayHello :: String -> IO ()
 
 sayHello x =
-    putStrLn("Hello," ++x++ "!")
+    putStrLn("Hello," ++ x ++ "!")
 
 half x = x/2
 

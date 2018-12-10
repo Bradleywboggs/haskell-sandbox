@@ -64,4 +64,10 @@ module ChapterThree
     rvrse :: String -> String
     rvrse s =
         afterTheNine s ++ " " ++ (!!) s 6 : [] ++ (!!) s 7 : [] ++ " " ++ take 5 s
+
+
+
+    mainTwo :: IO ()
+    mainTwo = do
+        print $ rvrse "Curry is awesome"
          
