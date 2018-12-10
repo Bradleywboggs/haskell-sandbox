@@ -39,4 +39,6 @@ waxOn       = x * 5
           y = z + 8
           x = y ^ 2
 
-waxOff x = ((triple x)^2) * 4
+waxOff x = ((Hello.triple x)^2) * 4
+
+triple x = x * 4
