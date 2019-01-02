@@ -57,9 +57,9 @@ module ChapterThree
     thirdChar someString =
         someString !! 2
     
-    letterIndex :: Int -> String
+    letterIndex :: Int -> Char
     letterIndex i = 
-       (!!) "Curry is awesome" i : []
+       (!!) "Curry is awesome" i
     
     rvrse :: String -> String
     rvrse s =
