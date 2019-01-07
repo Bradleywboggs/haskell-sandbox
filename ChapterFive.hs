@@ -41,12 +41,78 @@ module ChapterFive where
   -- ?? (+) Num a => a -> (a -> a)
   --   is it like an identity function in the first application?
   --   (+) 3 -> 4 -> 7???  How does the 4 represent the first
-  --   application  of the function???
+  --   application  of the function??? 
 
 
+  --Partial Aplication -p 161
+
+  addStuff :: Integer -> 
+              Integer -> 
+              Integer
+  addStuff a b = a + b + 5
+
+  addTen :: Integer -> Integer
+  addTen = addStuff 5
+  addTenExplained b =  5 + b + 5 
+  -- addStuff is partially applied, being given only one argument, 'a'. Thus, it still needs the b
+  -- by creating a new function from this partial application you get - addTen a = a + (5) + 5
+  fifteen :: Integer
+  fifteen = addTen 5
+  fifteenAlt = addStuff 5 5
+  fifteenExplained = 5 + 5 + 5
+  
+  subtractStuff :: Integer ->
+                   Integer ->
+                   Integer
+  subtractStuff x y = x - y - 10
+
+  subtractOne :: Integer -> Integer
+  subtractOne = subtractStuff 1
+  subtractOneExplained y = 1 - y - 10
+
+  result :: Integer
+  result = subtractOne 11
+  resultExplained = 1 - 11 - 10
+  
+--Uncurrying 130-133
+-- Uncurrying means un-nesting the functions and 
+-- replacing the two functions with a tuple of two values.
+--   Uncurried Functions: 1 function, many args
+--   Curried functions: Many functions, 1 arg/ea
+--     (+) :: Num a => a -> a -> a
+--     uncurry (+) :: Num a => (a, a) -> a
+
+  nonsense :: Bool -> Integer
+  nonsense True = 805
+  nonsense False = 31337
 
 
+  curriedFunction :: Integer
+                  -> Bool
+                  -> Integer
+  curriedFunction i b = i + (nonsense b)
 
+
+  uncurriedFunction :: (Integer, Bool)
+                    -> Integer
+  uncurriedFunction (i, b) = i + (nonsense b)
+
+
+  anonymous :: Integer 
+             -> Bool 
+             -> Integer
+  anonymous = \i b -> i + (nonsense b)
+
+
+  anonNested :: Integer 
+             -> Bool 
+             -> Integer
+
+  anonNested = \i -> \b -> i + (nonsense b)
+
+  -- Currying and Uncurrying Existing Functions pg 164
+  currie f a b = f (a, b)
+  
 --pg 134-135 Exercises
 
 --1. 
