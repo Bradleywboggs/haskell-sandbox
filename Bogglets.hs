@@ -4,7 +4,7 @@ module Bogglets where
   
   data Bogglet        = Bradley | Krystle | Josiah | Lileigh | James | Gilead | BabyBogglet | ImaginaryBogglet deriving Show
   data Fave           = Flowers | Cookies | Lollipops | Nerf_Guns | Pranks | Cars | BabyDolls | Bagels | Mommy deriving Show
-  data LeastFavorite  = Stinky_Diapers | Needles | Popped_Balloons  | Ruined_Cookies | Ruined_Lollipops | Smelling_Poop | Chores | Cereal deriving Show
+  data LeastFavorite  = StinkyDiapers | Needles | PoppedBalloons  | MissingCars | RuinedLollipops | SmellingPoop | Chores | Cereal deriving Show
   --   data BoggletQuantity = One | Two | Three | Four | Five | Six deriving Show
 
   findABogglet :: Integer -> Bogglet
@@ -27,8 +27,8 @@ module Bogglets where
   boggletLeastFaves :: Bogglet -> LeastFavorite
   boggletLeastFaves Josiah           = Cereal
   boggletLeastFaves Lileigh          = Chores
-  boggletLeastFaves James            = Ruined_Cookies
-  boggletLeastFaves Gilead           = Popped_Balloons
-  boggletLeastFaves ImaginaryBogglet = Smelling_Poop
-  boggletLeastFaves _                = Ruined_Lollipops
+  boggletLeastFaves James            = MissingCars
+  boggletLeastFaves Gilead           = PoppedBalloons
+  boggletLeastFaves ImaginaryBogglet = SmellingPoop
+  boggletLeastFaves _                = RuinedLollipops
 
