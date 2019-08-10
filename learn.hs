@@ -18,7 +18,7 @@ printCubeVol s = print lwh
     where lwh = s ^ 3
 
 
-opOne     = x * 3 + y
+opOne       = x * 3 + y
     where x = 3
           y = 1000
 
