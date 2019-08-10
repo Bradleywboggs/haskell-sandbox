@@ -3,11 +3,11 @@ module Bogglets where
 
   
   data Bogglet        = Bradley | Krystle | Josiah | Lileigh | James | Gilead | BabyBogglet | ImaginaryBogglet deriving Show
-  data Fave           = Flowers | Cookies | Lollipops | Nerf_Guns | Pranks | Cars | BabyDolls | Bagels | Mommy deriving Show
-  data LeastFavorite  = Stinky_Diapers | Needles | Popped_Balloons  | Ruined_Cookies | Ruined_Lollipops | Smelling_Poop | Chores | Cereal deriving Show
-  --   data BoggletQuantity = One | Two | Three | Four | Five | Six deriving Show
+  data Fave           = Flowers | Cookies | Lollipops | NerfGuns | Pranks | Cars | BabyDolls | Bagels | Mommy deriving Show
+  data LeastFavorite  = StinkyDiapers | Needles | PoppedBalloons  | RuinedCookies | RuinedLollipops | SmellingPoop | Chores | Cereal deriving Show
+--  data BoggletQuantity = BQ1 | BQ2 | BQ3 | BQ4 | BQ5 | BQ6 | BQ33 | BQ 34 deriving Show
 
-  findABogglet :: Integer -> Bogglet
+  findABogglet :: Num a => a -> Bogglet
   findABogglet 1 = Josiah
   findABogglet 2 = Lileigh
   findABogglet 3 = James
