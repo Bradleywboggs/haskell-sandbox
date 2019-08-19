@@ -219,7 +219,6 @@ greetIfCool coolness =
             putStrLn "..."
     where cool =
             coolness == "very cool"
-
 ---- Exercises: Case Practice ----
 -- 1.
 greaterThan :: (Ord a) => a -> a -> a
@@ -240,6 +239,71 @@ compNum x =
         LT -> -1
         GT -> 1
         EQ -> 0
+
+-- 7.6 Higher-order functions
+-- Functions that accept other functions as arguments
+-- to specify that a 'group' of arguments is actually a 
+-- single function argument, wrap in parens
+
+flop :: (a -> b -> c) -> b -> a -> c
+flop func x y = func y x
+
+-- heed :: [a] -> Maybe a
+
+data Employee = Coder
+               | Manager
+               | Veep
+               | CEO
+               deriving (Eq, Ord, Show)
+reportBoss :: Employee -> Employee -> IO ()
+reportBoss e e' = 
+    putStrLn $ show e ++
+               " is the boss of " ++
+               show e'
+employeeRank :: Employee -> Employee -> IO ()
+employeeRank e e' = 
+    case compare e e' of
+        GT -> reportBoss e e'
+        EQ -> putStrLn "Neither employee\
+                        \ is the boss"
+        LT -> (flip reportBoss) e e'
+
+-- We can paramaterize the comparing function (a -> a -> Ordering)
+
+employeeRanking :: ( Employee 
+                  -> Employee 
+                  -> Ordering )
+                  -> Employee
+                  -> Employee
+                  -> IO ()
+employeeRanking f e e' = 
+    case f e e' of
+     GT -> reportBoss e e'
+     EQ -> putStrLn "Neither employee\
+                     \ is the boss"
+     LT -> (flip reportBoss) e e'
+
+codersFTW :: Employee
+          -> Employee
+          -> Ordering
+codersFTW Coder Coder = EQ
+codersFTW _ Coder = LT
+codersFTW Coder _ = GT
+codersFTW e e' = compare e e'
+---- Exercises: Artful Dodgy ---- 
+dodgy :: Num a => a -> a -> a
+dodgy x y = x + y * 10
+
+oneIsOne :: Num a => a -> a
+oneIsOne = dodgy 1
+
+oneIsTwo :: Num a => a -> a
+oneIsTwo = (flip dodgy) 2
+
+--1. 
+--  dodgy 1 0 evals to 1 + 0 * 10. // 1
+
+
 --------------------- 7.11 Chapter Exercises ---------------------
 ---- Multiple Choice
 -- 1. A Polymorphic function : (d) may resolve to values of different types
