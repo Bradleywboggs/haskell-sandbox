@@ -25,7 +25,7 @@ trip :: Integer -> Integer
 trip = \x -> x * 3
 
 -- To apply anonymous functions, you need to wrap in parens
--- (\x -> x + 5) 6 -> 11
+-- (\x -> x + 5) 6  -- 11
 
 ----  Exercises: Grab Bag ----
 -- 1. Which are equivalent?
@@ -51,10 +51,11 @@ mThD = \x -> \y -> \z -> x * y * z
 -- 3. Rewriting functions
 --  a. Rewrite the f function in the where clause
 addOneIfOdd :: Integral a => a -> a
-addOneIfOdd o = case odd o of
-    True -> f o
-    False -> o
-    where f = \t -> t + 1
+addOneIfOdd o = 
+    case odd o of
+        True -> f o
+        False -> o
+        where f = \t -> t + 1
 -- b. Rewrite as lambda
 addFive :: Integral a => a -> a -> a
 addFive = \x -> (\y -> (+) (if x > y then y else x) (5))
@@ -74,6 +75,9 @@ myFlippy f x y = f y x
 --  Matching a pattern may fail, which results in trying to match on the next potential
 --  match. WHen a match succeeds, teh variables exposed in teh pattern are bound.
 --  Pattern Matching proceeds from LEFT to Right and outside to inside.
+
+-- Pattern mathing is a syntactc way of deconstructing products and sum
+-- types to get their inhabitants.
 
 isItTwo :: Integer -> Bool
 isItTwo 2 = True
@@ -164,6 +168,44 @@ fst3 (x, _, _) = x
 third3 :: (a, b, c) -> c
 third3 (_, _, z) = z
 
+data Blah = Blah deriving Show
+-- pattern matching on Blah does 1 thing
+
+blahFunc :: Blah -> Bool
+blahFunc Blah = True
+
+data Identity a = 
+    Identity a 
+    deriving (Eq, Show)
+-- Unary data constructor( one Data constructor)
+-- Product Type
+unpackId :: Identity a -> a
+unpackId (Identity x) = x
+
+data FirstName = FirstName String deriving Show
+data LastName =  LastName String deriving Show
+data Age = Age Int deriving Show
+data Person = Person FirstName LastName Age deriving Show
+
+getFName :: Person -> FirstName -> FirstName
+getFName (Person 
+           (FirstName name)
+           (LastName lastName)
+           (Age num))
+           (FirstName _) = (FirstName name)
+           
+getLName (Person 
+           (FirstName name)
+           (LastName lastName)
+           (Age num))
+           (LastName _) = (LastName lastName)
+
+pluckFName :: FirstName -> String
+pluckFName (FirstName name) = name
+
+pluckLName :: LastName -> String
+pluckLName (LastName name) = name
+
 ---- Exercises: Variety Pack ----
 --1.
 k :: (a, b) -> a
@@ -219,7 +261,6 @@ greetIfCool coolness =
             putStrLn "..."
     where cool =
             coolness == "very cool"
-
 ---- Exercises: Case Practice ----
 -- 1.
 greaterThan :: (Ord a) => a -> a -> a
@@ -240,6 +281,244 @@ compNum x =
         LT -> -1
         GT -> 1
         EQ -> 0
+
+-- 7.6 Higher-order functions
+-- Functions that accept other functions as arguments
+-- to specify that a 'group' of arguments is actually a 
+-- single function argument, wrap in parens
+
+flop :: (a -> b -> c) -> b -> a -> c
+flop func x y = func y x
+
+-- heed :: [a] -> Maybe a
+
+data Employee = Coder
+               | Manager
+               | Veep
+               | CEO
+               deriving (Eq, Ord, Show)
+reportBoss :: Employee -> Employee -> IO ()
+reportBoss e e' = 
+    putStrLn $ show e ++
+               " is the boss of " ++
+               show e'
+employeeRank :: Employee -> Employee -> IO ()
+employeeRank e e' = 
+    case compare e e' of
+        GT -> reportBoss e e'
+        EQ -> putStrLn "Neither employee\
+                        \ is the boss"
+        LT -> (flip reportBoss) e e'
+
+-- We can paramaterize the comparing function (a -> a -> Ordering)
+
+employeeRanking :: ( Employee 
+                  -> Employee 
+                  -> Ordering )
+                  -> Employee
+                  -> Employee
+                  -> IO ()
+employeeRanking f e e' = 
+    case f e e' of
+     GT -> reportBoss e e'
+     EQ -> putStrLn "Neither employee\
+                     \ is the boss"
+     LT -> (flip reportBoss) e e'
+
+codersFTW :: Employee
+          -> Employee
+          -> Ordering
+codersFTW Coder Coder = EQ
+codersFTW _ Coder = LT
+codersFTW Coder _ = GT
+codersFTW e e' = compare e e'
+---- Exercises: Artful Dodgy ---- 
+dodgy :: Num a => a -> a -> a
+dodgy x y = x + y * 10
+
+oneIsOne :: Num a => a -> a
+oneIsOne = dodgy 1
+
+oneIsTwo :: Num a => a -> a
+oneIsTwo = (flip dodgy) 2
+
+--1. dodgy 1 0 evals to 1 + 0 * 10. // 1
+--2. dodgy 1 1 // 11
+--3. dodgy 2 2 // 22
+--4. dodgy 1 2 // 21
+--5. dodgy 2 1 // 12
+--6. oneIsOne 1 -> 1 + (1) * 10 // 11 
+--7. oneIsOne 2 // 21
+--8. oneIsTwo 1 // (1) + 2 * 10 // 21
+--9. oneIsTwo 2 // 22
+--10. oneIsOne 3 // 31
+--11. oneIsTwo 3 // 23
+------------------------------------
+---- 7.6b Writing Guard Blocks ----
+-- alternative to if-then-else or ternary
+-- each guard has its own equal sign and there isn't one
+-- in the first line of the function definition becasuse each case needs its own
+-- expression
+-- is this simply an alternative to case ? Or there a limit to one not present in 
+-- the other?
+myAbs :: Integer -> Integer
+myAbs x
+    | x < 0     = (-x)
+    | otherwise = x
+-- | begins each guard case
+-- otherwise is alias for True
+-- Each expression within the guard block must be a predicate
+
+bloodNa :: Integer -> String
+bloodNa x 
+    | x < 135   = "too low"
+    | x > 145   = "too high"
+    | otherwise = "just right"
+
+isRight :: (Num a, Eq a) 
+        => a -> a -> a -> String
+isRight a b c 
+    | a^2 + b^2 == c^2 = "Right on"
+    | otherwise        = "not right"
+
+dogYrs :: Integer -> Integer
+dogYrs x
+    | x <= 0    = 0
+    | x <= 1    = x * 15
+    | x <= 2    = x * 12
+    | x <= 4    = x * 8
+    | otherwise = x * 6
+
+avgGrade :: (Fractional a, Ord a)
+        => a -> Char
+avgGrade x
+    | y >= 0.9 = 'A'
+    | y >= 0.8 = 'B'
+    | y >= 0.7 = 'C'
+    | y >= 0.59 = 'D'
+    | otherwise = 'F'
+    where y = x /100
+----- Exercises: Guard Duty -----
+--1. 
+--2. 
+-- Bottom line for 1 and 2: you must be very specific in 
+-- How you order your guards.
+--3. (C) When xs is a palindrome
+pally :: Eq a => [a] -> Bool
+pally xs
+    | xs == reverse xs = True
+    | otherwise        = False
+--4. What tyoes of args can pal take? Eq a.
+--5. What is the type of function pally?
+--  pally :: Eq a => [a] -> Bool
+--6. 
+numbbies :: (Ord a, Num a) => a -> Int
+numbbies x
+    | x < 0 = -1
+    | x == 0 = 0
+    | x > 0 = 1
+-- (c) returns an indication of positive or negative
+-- why type of args can it take? What is the function type
+-- Function composition
+add :: Int -> Int -> Int
+add x y = x + y
+
+---- 7.8 Function composition ----
+-- infix operator (.)
+-- has lower precedence than whitespace
+-- must be applied to a function before the function is applied to an argument
+-- type sig:
+--  (.) :: (b -> c) -> (a -> b) -> a -> c
+--    - given a function from b -> c
+--    - given a function from a -> b
+--    - return a function from a -> c
+
+negativeSum :: Num a => [a] -> a
+negativeSum list = negate . sum $ list
+
+takeFromReversed :: [a] -> [a]
+takeFromReversed list = take 5 . reverse $ list
+
+fiveOddFromNum :: Integral a => a -> [a]
+fiveOddFromNum x = take 5 . filter odd . enumFrom $ x
+-- RETURN VAL Integral   a => [a]  
+--                 ([a] -> [a]) . 
+--                 (Integral a => [a] -> [a]) .
+--                 (Enum a => a => [a])
+-- INPUT VAL Integral a => a
+
+---- 7.9 Pointfree style ----
+-- a 'point' in this context refers to a function argument
+-- So 'pointfree' style means defining functions, 
+--  omitting the arguments, allowing them to be inferred
+--   making a more concise (terse?) syntax
+--  It helps the reader focus on the functions rather than the data
+sumTheList :: Int -> [Int] -> Int
+sumTheList x xs = foldr (+) x xs 
+
+sumTheListPF :: Int -> [Int] -> Int
+sumTheListPF = foldr (+)
+
+aCounter :: [Char] -> Int
+aCounter = length . filter (== 'a') 
+
+
+data InvStatus = Unprocessed | Processed deriving (Eq, Show)
+data Invoice  = Invoice InvStatus deriving (Eq, Show)
+
+-- getStatus :: Invoice -> InvStatus
+-- getStatus invoice = 
+--     case invoice == Invoice Processed of
+--         True -> Processed
+--         False -> Unprocessed
+-- process :: Invoice -> Invoice
+-- process invoice =
+--     case (getStatus invoice) == Unprocessed of
+--         _ -> Invoice Processed
+
+adder :: Int -> Int -> Int
+adder x y = x + y
+
+addPF :: Int -> Int -> Int
+addPF = (+)
+
+addOne :: Int -> Int
+addOne = \x -> x + 1
+
+addOnePF :: Int -> Int
+addOnePF = (+1)
+
+compo :: IO ()
+compo = do
+    print (0 :: Int)
+    print (add 1 0)
+    print (addOne 0)
+    print (addOnePF 0)
+    print ((addOne . addOne) 0)
+    print ((addOnePF . addOnePF) 0)
+    print (negate (addOne 0))
+    print ((negate . addOne) 0)
+    print ((addOne . addOne . addOne . negate . addOne) 0)
+    -- 0
+    -- 1
+    -- 1
+    -- 1
+    -- 2
+    -- 2
+    -- -1
+    -- -1
+    -- 2
+
+    ---- 7.10 Demonstrating Composition ----
+    -- putStrLn :: String -> IO ()
+    -- show :: Show a => a -> String
+    -- print :: Show a => a -> IO ()
+    -- print demonstrates a composition of putStrLn and show
+    
+    -- print x = putStrLn . show $ x
+    -- print = putStrLn . show
+
+  
 --------------------- 7.11 Chapter Exercises ---------------------
 ---- Multiple Choice
 -- 1. A Polymorphic function : (d) may resolve to values of different types
@@ -271,6 +550,57 @@ tensDigit :: Integral a => a -> a
 --          d     = xLast `mod` 10
 -- initial rewrite:
 tensDigit x = mod (div x 10) 10
+tensDigitFancy x = flip mod 10 $ div x 10
 -- a) rewrite it using divMod
+tensDigitDivMod0 :: Integral a => a -> a
+tensDigitDivMod0 x = snd $ divMod x 10
+-- returns the Ones digit?
+tensDigitDivMod1 :: Integral a => a -> a
+tensDigitDivMod1 x = snd . flip divMod 10 $ fst $ divMod x 10
+-- This is the most bloated and unnecessary refactor of this function
+-- that I could imagine. 
+-- perhaps just this?...
+tensDigitDivMod2 :: Integral a => a -> (a, a)
+tensDigitDivMod2 x = flip divMod 10 $ div x 10
 -- b) does the divMod version have same type as the original?
+--    it can. But out of the box, no
 -- c) Change it so that we're getting the hundreds digit instead
+hundsDigit :: Integral a => a -> a
+hundsDigit x = flip mod 10 $ div x 100
+
+-- 2.
+-- a. implement foldBool with case statement
+foldBoolA :: a -> a -> Bool -> a
+foldBoolA x y bool =
+    case bool of
+        True -> y
+        False -> x
+-- b. implement foldBool with guards
+foldBoolB :: a -> a -> Bool -> a
+foldBoolB x y bool
+    | bool == False = x
+    | bool == True = y
+
+--3. fill in the def
+blahhh :: (a -> b) -> (a, c) -> (b, c)
+blahhh func (val1, val2) = (,) (func val1) val2
+
+--4. write point free versions
+
+roundTrip :: (Show a, Read a) => a -> a
+-- roundTrip a = read $ show a
+roundTrip = read . show
+
+mainRT = do
+    print (roundTrip 4)
+    print (id 4)
+
+--5. another roundTrip
+roundTrip0 :: (Show a, Read b) => a -> b
+
+roundTrip0 a = read $ show a
+mainRT0 = do
+    print $ (roundTrip0 4 :: Int)
+
+
+
